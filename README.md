@@ -2,6 +2,9 @@
 
 A clojure seesaw messaging GUI.
 
+![smchatgui](http://imgur.com/dx1yE48l.png)
+
+
 ## Usage
 
 Currently possible to create an exe to run on windows.
