@@ -19,7 +19,6 @@
 (use 'seesaw.core)
 (use 'seesaw.font)
 (use 'seesaw.dev)
-(use 'clojure.java.shell) ;; This use will be removed once the terminal interactions are gone and works on windows.
 
 (defn -main [& args]
   (println "GUI up and running...")
@@ -30,26 +29,6 @@
   (def chatname (atom "Unknown"))
   (def chatserver (atom "http://servesm.herokuapp.com/"))
   (defonce chatcolor (atom "yellow"))
-
-  ;; this won't even be needed once replacing the terminal interaction. so this will be removed soon!
-
-  (defn sh-command [command-args]
-  (let [val (str/split command-args #" ")
-        counter (count val)]
-    (if (= counter 1)
-      (text! display-area (:out (sh (first val)))))
-    (if (= counter 2)
-      (text! display-area (:out (sh (first val) (second val)))))
-    (if (= counter 3)
-      (text! display-area (:out (sh (first val) (second val) (nth val 2)))))
-    (if (= counter 4)
-      (text! display-area (:out (sh (first val) (second val) (nth val 2) (nth val 3)))))
-    (if (= counter 5)
-      (text! display-area (:out (sh (first val) (second val) (nth val 2) (nth val 3) (nth val 4)))))
-    (if (= counter 6)
-      (text! display-area (:out (sh (first val) (second val) (nth val 2) (nth val 3) (nth val 4) (nth val 5)))))))
-
-  ;; This stuff is fine for now but might need to be updated since it does require the terminal interaction to do the interval.
 
   (defn set-interval [callback ms]
     (future (while true (do (Thread/sleep ms) (callback)))))
