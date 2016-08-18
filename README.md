@@ -1,18 +1,27 @@
 # smchat
-<<<<<<< HEAD
 
-A Clojure library designed to ... well, that part is up to you.
+A clojure seesaw messaging GUI.
 
 ## Usage
 
-FIXME
+Currently possible to create an exe to run on windows.
 
-## License
+## Features
 
-Copyright © 2016 FIXME
+- Connecting to a different site.
+- Selecting a Name
+- Clearing Messages
+- Changing Prompt
+- Font Color
+- Theme
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
-=======
-A chat GUI using seesaw api.
->>>>>>> 2f3fe9c14f138c0f7732c5986f3899879903b671
+# todo
+
+- Making an apk
+- Groups
+- encryption
+- login
+- pictures
+- emojis
+- a lot
+
