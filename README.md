@@ -7,7 +7,7 @@ A clojure seesaw messaging GUI.
 
 ## Usage
 
-Currently possible to create an exe to run on windows.
+https://github.com/defunSM/smchat/releases for exe file.
 
 ## Features
 

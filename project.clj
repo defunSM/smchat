@@ -8,7 +8,7 @@
                  [com.github.insubstantial/substance "7.1"]
                  [org.clojure/tools.nrepl "0.2.11"]]
   :plugins [[cider/cider-nrepl "0.9.1"]]
-  :profiles {:uberjar {:aot [smchat.core]}}
-  :jar-name "smchat.jar"
-  :uberjar-name "smchat-uber.jar"
-  :main smchat.core)
+  :profiles {:uberjar {:aot [smchat.core]}} ;; add this
+  :jar-name "smchat.jar" ;; add this
+  :uberjar-name "smchat-uber.jar" ;; add this
+  :main smchat.core) ;; add this
