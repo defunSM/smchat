@@ -3,17 +3,8 @@
   (:import org.pushingpixels.substance.api.SubstanceLookAndFeel)
   (:require [clojure.string :as str]))
 
-;; change code to work on a windows platform! (java.net.URL) to make it useo nly java without interactions with the terminal.
-;; add documentation
-;; TEST to work on windows and mae a windows .exe
-;; Make the site launching smchat on defunsm.github
-;; Add download links for both the .exe and the linux on that has to be made.
-;; make a github repository for this.
-
-;; REMOVE a lot of useless and bad code from this.
 ;; Think of more ideas and start working on the postgrel database.
 ;; Make a settings frame.
-
 
 (use 'clojure.repl)
 (use 'seesaw.core)
@@ -26,7 +17,12 @@
   (declare f)
   (declare display-area)
   (declare input-command)
+  (declare login-frame)
+  (declare username-input)
+  (declare password-input)
+
   (def chatname (atom "Unknown"))
+  (def user-password (atom ""))
   (def chatserver (atom "http://servesm.herokuapp.com/"))
   (defonce chatcolor (atom "yellow"))
 
@@ -48,6 +44,7 @@
   (def display-area (text :multi-line? true :text "You have launched ChatBox.\n\n\n\n\n" :foreground @chatcolor :background "black"))
 
   (def chat-prompt (label :text "=>"))
+  (def chat-prompt-main (atom "=>"))
 
   (defn southcontent []
     (horizontal-panel :items [chat-prompt input-command]))
@@ -92,6 +89,17 @@
 
   ;; This is the handler for the menu of the main frame that is being launched.
 
+  (defn check-valid [name]
+    (if (= nil (re-find #"[-!$%^&*_+~=`{}\[\]:;<>?,. \/]" name))
+      (reset! chatname name)
+      (alert "Please enter a valid name without spaces and symbols.")))
+
+  (defn check-valid-prompt [prompt]
+    (if (= nil (re-find #"[!$%^&*_+~=`{}\[\]:;?,. \/]" prompt))
+      (do (config! chat-prompt :text prompt)
+          (reset! chat-prompt-main prompt))
+      (alert "Certain symbols are not allowed for the prompt.")))
+
   (defn handler [event]
     (let [e (.getActionCommand event)]
       (if (= e "Close ChatBox")
@@ -101,7 +109,7 @@
       (if (= e "Clear Chat")
         (do (slurp (str @chatserver "clearchat"))))
       (if (= e "Change Chat Name")
-        (do (reset! chatname (input "Enter the name you want in the chatbox: "))))
+        (do (check-valid (input "Enter the name you want in the chatbox: "))))
       (if (= e "Change ChatServer")
         (do (reset! chatserver (input "Enter the new ChatServer: "))))
       (if (= e "Change Chat Color")
@@ -110,13 +118,19 @@
       (if (= e "Change Theme")
         (do (-> (frame :title "Themes" :id 3 :content (theme-selector) :on-close :hide :height 600 :width 300) pack! show!)))
       (if (= e "Change Prompt")
-        (do (config! chat-prompt :text (input "Enter new prompt: "))))
+        (do (check-valid-prompt (input "Enter new prompt: "))))
       (if (= e "Default Settings")
         (do (reset! chatcolor "yellow")
             (config! display-area :foreground @chatcolor)
             (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")
             (config! chat-prompt :text "=>")
-            (reset! chatname "Unknown")))))
+            (reset! chat-prompt-main "=>")
+            (reset! chatname "Unknown")))
+      (if (= e "Login")
+        (do (reset! chatname (text username-input))
+            (reset! user-password (text password-input))
+            (-> login-frame hide!)
+            (-> f pack! show!)))))
 
   (def close-chatbox (menu-item :text "Close ChatBox"
                                 :tip "Closes the ChatBox."
@@ -176,8 +190,25 @@
                 :on-close :hide
                 :content (content)))
 
+
+  (def user-label (label :text "Username: "))
+  (def username-input (text :text "" :foreground "yellow"))
+  (def pass-label (label :text "Password: "))
+  (def password-input (password))
+  (def enter-login (button :text "Login" :listen [:action handler]))
+
+  (defn login-content []
+    (vertical-panel :items [user-label username-input pass-label password-input enter-login]))
+
+  (def login-frame (frame :title "Login"
+                          :id 120
+                          :height 300
+                          :width 300
+                          :on-close :hide
+                          :content (login-content)))
+
   (native!)
   (invoke-later
-   (-> f pack! show!)
+   (-> login-frame pack! show!)
    (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")
    (request-focus! input-command)))
