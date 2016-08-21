@@ -144,14 +144,15 @@
       (if (= e "Guest")
         (do (-> login-frame hide!)
             (-> f pack! show!)
-            (reset! chatname (str "Guest" (str (rand 1000))))
+            (reset! chatname (str "Guest" (str (rand-int 1000))))
             (alert (str "You have logined in as " @chatname))))
       (if (= e "Continue")
-        (do (slurp (str @chatserver "new?" (text ruser-text-field) " " (text confirm-textbox) " " (text remail-text) " " (text rage-text)))
+        (do (slurp (str @chatserver "new?" (text ruser-text-field) "%20" (text confirm-textbox) "%20" (text remail-text) "%20" (text rage-text)))
             (-> register-frame hide!)
             (-> f pack! show!)
             (reset! chatname @text ruser-text-field)))))
 
+  ;; something wrong with the continue handler
   ;; Add stuff so that it takes all the information and records it in a file
 
   (def close-chatbox (menu-item :text "Close ChatBox"
