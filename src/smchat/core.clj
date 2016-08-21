@@ -3,8 +3,9 @@
   (:import org.pushingpixels.substance.api.SubstanceLookAndFeel)
   (:require [clojure.string :as str]))
 
-;; Think of more ideas and start working on the postgrel database.
 ;; Make a settings frame.
+;; LOGIN, REGISTER frames
+
 
 (use 'clojure.repl)
 (use 'seesaw.core)
@@ -18,8 +19,14 @@
   (declare display-area)
   (declare input-command)
   (declare login-frame)
+  (declare register-frame)
   (declare username-input)
   (declare password-input)
+  (declare ruser-text-field)
+  (declare confirm-textbox)
+  (declare remail-text)
+  (declare rage-text)
+
 
   (def chatname (atom "Unknown"))
   (def user-password (atom ""))
@@ -130,7 +137,22 @@
         (do (reset! chatname (text username-input))
             (reset! user-password (text password-input))
             (-> login-frame hide!)
-            (-> f pack! show!)))))
+            (-> f pack! show!)))
+      (if (= e "Register")
+        (do (-> login-frame hide!)
+            (-> register-frame show!)))
+      (if (= e "Guest")
+        (do (-> login-frame hide!)
+            (-> f pack! show!)
+            (reset! chatname (str "Guest" (str (rand 1000))))
+            (alert (str "You have logined in as " @chatname))))
+      (if (= e "Continue")
+        (do (slurp (str @chatserver "new?" (text ruser-text-field) " " (text confirm-textbox) " " (text remail-text) " " (text rage-text)))
+            (-> register-frame hide!)
+            (-> f pack! show!)
+            (reset! chatname @text ruser-text-field)))))
+
+  ;; Add stuff so that it takes all the information and records it in a file
 
   (def close-chatbox (menu-item :text "Close ChatBox"
                                 :tip "Closes the ChatBox."
@@ -190,15 +212,48 @@
                 :on-close :hide
                 :content (content)))
 
-
+  ;; For the login FRAME ----------------------------------------------------------
   (def user-label (label :text "Username: "))
   (def username-input (text :text "" :foreground "yellow"))
   (def pass-label (label :text "Password: "))
   (def password-input (password))
   (def enter-login (button :text "Login" :listen [:action handler]))
+  (def register-login (button :text "Register" :listen [:action handler]))
+  (def guest-login (button :text "Guest" :listen [:action handler]))
+  ;; ------------------------------------------------------------------------------
+
+  (def ruser-label (label :text "Username: "))
+  (def ruser-text-field (text :text "" :foreground "yellow"))
+  (def ruser (horizontal-panel :items [ruser-label ruser-text-field]))
+  (def rpass-label (label :text "Password: "))
+  (def confirm-rpass (label :text "Confirm Password: "))
+  (def confirm-textbox (password))
+  (def rpass-text-field (password))
+  (def rpass (horizontal-panel :items [rpass-label rpass-text-field]))
+  (def rpass-confirm (horizontal-panel :items [confirm-rpass confirm-textbox]))
+  (def remail-label (label :text "Email: "))
+  (def remail-text (text :text "" :foreground "yellow"))
+  (def remail (horizontal-panel :items [remail-label remail-text]))
+  (def confirm-email-label (label :text "Confirm Email: "))
+  (def confirm-email-text (text :text "" :foreground "yellow"))
+  (def confirm-email (horizontal-panel :items [confirm-email-label confirm-email-text]))
+  (def rage-label (label :text "Age: "))
+  (def rage-text (text :text "" :foreground "yellow"))
+  (def rage (horizontal-panel :items [rage-label rage-text]))
+  (def register-done (button :text "Continue" :listen [:action handler]))
+
+  (defn register-content []
+    (vertical-panel :items [ruser rpass rpass-confirm remail confirm-email rage register-done]))
 
   (defn login-content []
-    (vertical-panel :items [user-label username-input pass-label password-input enter-login]))
+    (vertical-panel :items [user-label username-input pass-label password-input (horizontal-panel :items [enter-login register-login guest-login])]))
+
+  (def register-frame (frame :title "Register"
+                             :id 414
+                             :height 300
+                             :width 300
+                             :on-close :hide
+                             :content (register-content)))
 
   (def login-frame (frame :title "Login"
                           :id 120
