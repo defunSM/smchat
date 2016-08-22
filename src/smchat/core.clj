@@ -4,7 +4,8 @@
   (:require [clojure.string :as str]))
 
 ;; Make a settings frame.
-;; LOGIN, REGISTER frames
+;; Fix the way chat left over is dealt with in the sql database.
+;; remove changing name option to adding a nickname
 
 
 (use 'clojure.repl)
@@ -26,12 +27,15 @@
   (declare confirm-textbox)
   (declare remail-text)
   (declare rage-text)
+  (declare cphone-text)
 
 
   (def chatname (atom "Unknown"))
   (def user-password (atom ""))
   (def chatserver (atom "http://servesm.herokuapp.com/"))
+  (def nickname (atom ""))
   (defonce chatcolor (atom "yellow"))
+
 
   (defn set-interval [callback ms]
     (future (while true (do (Thread/sleep ms) (callback)))))
@@ -44,7 +48,7 @@
     (let [k (.getKeyChar e)]
       (println k (type k))
       (if (= k \newline)
-        (do (slurp (str @chatserver "chat?" @chatname "=>" (clojure.string/replace (text input-command) #" " "%20")))
+        (do (slurp (str @chatserver "chat?" @chatname @nickname "=>" (clojure.string/replace (text input-command) #" " "%20")))
             (text! input-command "")))))
 
   (def input-command (text :multi-line? false :text "" :listen [:key-typed keypress]))
@@ -98,8 +102,8 @@
 
   (defn check-valid [name]
     (if (= nil (re-find #"[-!$%^&*_+~=`{}\[\]:;<>?,. \/]" name))
-      (reset! chatname name)
-      (alert "Please enter a valid name without spaces and symbols.")))
+      (reset! nickname (str "(" name ")"))
+      (alert "Please enter a valid nickname without spaces and symbols.")))
 
   (defn check-valid-prompt [prompt]
     (if (= nil (re-find #"[!$%^&*_+~=`{}\[\]:;?,. \/]" prompt))
@@ -115,8 +119,8 @@
         (do (slurp (str "curl" @chatserver "chat?"))))
       (if (= e "Clear Chat")
         (do (slurp (str @chatserver "clearchat"))))
-      (if (= e "Change Chat Name")
-        (do (check-valid (input "Enter the name you want in the chatbox: "))))
+      (if (= e "Change Chat Nickname")
+        (do (check-valid (input "Enter the nickname you want in the chatbox: "))))
       (if (= e "Change ChatServer")
         (do (reset! chatserver (input "Enter the new ChatServer: "))))
       (if (= e "Change Chat Color")
@@ -145,9 +149,9 @@
         (do (-> login-frame hide!)
             (-> f pack! show!)
             (reset! chatname (str "Guest" (str (rand-int 1000))))
-            (alert (str "You have logined in as " @chatname))))
+            (alert (str "You have logged in as " @chatname))))
       (if (= e "Continue")
-        (do (slurp (str @chatserver "new?" (text ruser-text-field) "%20" (text confirm-textbox) "%20" (text remail-text) "%20" (text rage-text)))
+        (do (slurp (str @chatserver "new?" (text ruser-text-field) "%20" (text confirm-textbox) "%20" (text remail-text) "%20" (text rage-text) "%20" (text cphone-text)))
             (-> register-frame hide!)
             (-> f pack! show!)
             (reset! chatname @text ruser-text-field)))))
@@ -163,7 +167,7 @@
                                :tip "Displays the new messages in the display area."
                                :listen [:action handler]))
 
-  (def enter-chat-name (menu-item :text "Change Chat Name"
+  (def enter-chat-name (menu-item :text "Change Chat Nickname"
                                   :tip "This allows you to change your chat name."
                                   :listen [:action handler]))
 
@@ -242,9 +246,15 @@
   (def rage-text (text :text "" :foreground "yellow"))
   (def rage (horizontal-panel :items [rage-label rage-text]))
   (def register-done (button :text "Continue" :listen [:action handler]))
+  (def rphone-label (label :text "Phone: "))
+  (def rphone-text (text :text "" :foreground "yellow"))
+  (def phone (horizontal-panel :items [rphone-label rphone-text]))
+  (def cphone-label (label :text "Confirm Phone: "))
+  (def cphone-text (text :text "" :foreground "yellow"))
+  (def confirm-phone (horizontal-panel :items [cphone-label cphone-text]))
 
   (defn register-content []
-    (vertical-panel :items [ruser rpass rpass-confirm remail confirm-email rage register-done]))
+    (vertical-panel :items [ruser rpass rpass-confirm remail confirm-email rage phone confirm-phone register-done]))
 
   (defn login-content []
     (vertical-panel :items [user-label username-input pass-label password-input (horizontal-panel :items [enter-login register-login guest-login])]))
