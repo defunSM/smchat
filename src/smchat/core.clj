@@ -6,7 +6,7 @@
 ;; Make a settings frame.
 ;; Fix the way chat left over is dealt with in the sql database.
 ;; remove changing name option to adding a nickname
-
+;; move registration to the site.
 
 (use 'clojure.repl)
 (use 'seesaw.core)
@@ -34,6 +34,7 @@
   (def user-password (atom ""))
   (def chatserver (atom "http://servesm.herokuapp.com/"))
   (def nickname (atom ""))
+  (def adminstatus (atom ""))
   (defonce chatcolor (atom "yellow"))
 
 
@@ -115,8 +116,6 @@
     (let [e (.getActionCommand event)]
       (if (= e "Close ChatBox")
         (do (-> f hide!)))
-      (if (= e "Refresh ChatBox")
-        (do (slurp (str "curl" @chatserver "chat?"))))
       (if (= e "Clear Chat")
         (do (slurp (str @chatserver "clearchat"))))
       (if (= e "Change Chat Nickname")
@@ -141,7 +140,10 @@
         (do (reset! chatname (text username-input))
             (reset! user-password (text password-input))
             (-> login-frame hide!)
-            (-> f pack! show!)))
+            (if (= "TRUE" (slurp (str @chatserver "confirmlogin?" (text username-input) "%20" (text password-input))))
+              (-> f pack! show!)
+              (do (alert "Invalid Username or Password")
+                  (-> login-frame show!)))))
       (if (= e "Register")
         (do (-> login-frame hide!)
             (-> register-frame show!)))
@@ -154,7 +156,13 @@
         (do (slurp (str @chatserver "new?" (text ruser-text-field) "%20" (text confirm-textbox) "%20" (text remail-text) "%20" (text rage-text) "%20" (text cphone-text)))
             (-> register-frame hide!)
             (-> f pack! show!)
-            (reset! chatname @text ruser-text-field)))))
+            (reset! chatname @text ruser-text-field)))
+      (if (= e "Log into Admin Account")
+        (do (if (= "smchatadmin" (input "Enter ADMIN Password: "))
+              (do (reset! chatname (input "Enter UserName: "))
+                  (reset! nickname "[[ADMIN]]")
+                  (alert (str "You have logged in as " @chatname @nickname)))
+              (alert "Incorrect Password!"))))))
 
   ;; something wrong with the continue handler
   ;; Add stuff so that it takes all the information and records it in a file
@@ -162,10 +170,6 @@
   (def close-chatbox (menu-item :text "Close ChatBox"
                                 :tip "Closes the ChatBox."
                                 :listen [:action handler]))
-
-  (def refresh-chat (menu-item :text "Refresh ChatBox"
-                               :tip "Displays the new messages in the display area."
-                               :listen [:action handler]))
 
   (def enter-chat-name (menu-item :text "Change Chat Nickname"
                                   :tip "This allows you to change your chat name."
@@ -203,13 +207,17 @@
                                  :tip "Clicking this returns all default settings."
                                  :listen [:action handler]))
 
+  (def gain-admin (menu-item :text "Log into Admin Account"
+                             :tip "You should know what this does."
+                             :listen [:action handler]))
+
   ;; This is the main SMCHAT frame that is launched in the beginnning.
 
   (def f (frame :title "SMChat"
                 :id 100
                 :menubar (menubar :items [(menu :text "File" :items [close-chatbox])
                                           (menu :text "Customize" :items [change-chat-color change-prompt theme-select return-default])
-                                          (menu :text "Chat" :items [refresh-chat clear-chat change-chatserver enter-chat-name])
+                                          (menu :text "Chat" :items [clear-chat change-chatserver enter-chat-name gain-admin])
                                           (menu :text "Help" :items [documentation])])
 
                 :height 300
