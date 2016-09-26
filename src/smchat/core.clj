@@ -13,6 +13,8 @@
 (use 'seesaw.font)
 (use 'seesaw.dev)
 
+(use 'clojure.java.browse)
+
 (defn -main [& args]
   (println "GUI up and running...")
 
@@ -162,7 +164,12 @@
               (do (reset! chatname (input "Enter UserName: "))
                   (reset! nickname "[[ADMIN]]")
                   (alert (str "You have logged in as " @chatname @nickname)))
-              (alert "Incorrect Password!"))))))
+              (alert "Incorrect Password!"))))
+      (if (= e "Register-On-Web")
+        (do (browse-url "http://servesm.herokuapp.com/register")))
+      (if (= e "Back")
+        (do (-> register-frame hide!)
+            (-> login-frame show!)))))
 
   ;; something wrong with the continue handler
   ;; Add stuff so that it takes all the information and records it in a file
@@ -260,9 +267,11 @@
   (def cphone-label (label :text "Confirm Phone: "))
   (def cphone-text (text :text "" :foreground "yellow"))
   (def confirm-phone (horizontal-panel :items [cphone-label cphone-text]))
+  (def register-on-site (button :text "Register-On-Web" :listen [:action handler]))
+  (def back-register (button :text "Back" :listen [:action handler]))
 
   (defn register-content []
-    (vertical-panel :items [ruser rpass rpass-confirm remail confirm-email rage phone confirm-phone register-done]))
+    (vertical-panel :items [ruser rpass rpass-confirm remail confirm-email rage phone confirm-phone (horizontal-panel :items [back-register register-on-site register-done])]))
 
   (defn login-content []
     (vertical-panel :items [user-label username-input pass-label password-input (horizontal-panel :items [enter-login register-login guest-login])]))
