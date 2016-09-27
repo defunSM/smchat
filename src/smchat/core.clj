@@ -5,6 +5,7 @@
 
 (import java.awt.Toolkit)
 (import '(javax.swing JFrame JPanel JButton))
+
 ;; Make a settings frame.
 ;; Fix the way chat left over is dealt with in the sql database.
 ;; remove changing name option to adding a nickname
