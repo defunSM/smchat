@@ -44,7 +44,10 @@
   (defn set-interval [callback ms]
     (future (while true (do (Thread/sleep ms) (callback)))))
 
-  (def job (set-interval #(do (text! display-area (clojure.string/replace (slurp (str @chatserver "chat")) #"%20" " "))) 1000))
+  (defn slurp-server []
+    (clojure.string/replace (slurp (str @chatserver "chat")) #"%20" " "))
+
+  (def job (set-interval #(do (text! display-area (slurp-server))) 1000))
 
 
 ;; Keypress for the chatbox which will clear the input-command and send the new message once enter is pressed.
@@ -74,7 +77,7 @@
 
   (defn tabbed-version []
     (tabbed-panel :tabs [{:title "Chat" :content (scrollable display-area)}
-                                  {:title "Friends" :content (friends-list)}]))
+                         {:title "Friends" :content (friends-list)}]))
 
   (defn content []
     (border-panel
@@ -183,7 +186,8 @@
             (-> login-frame show!)))
       (if (= e "Log out")
         (do (-> f hide!)
-            (-> login-frame show!)))))
+            (-> login-frame show!)
+            (slurp (str @chatserver "chat?" "[Server]%20" @chatname @nickname "%20has%20logged%20out."))))))
 
   ;; something wrong with the continue handler
   ;; Add stuff so that it takes all the information and records it in a file
@@ -237,6 +241,10 @@
                                :listen [:action handler]))
 
   ;; This is the main SMCHAT frame that is launched in the beginnning.
+
+  (defn exit-smchat []
+    (do (slurp (str @chatserver "chat?" "[Server]%20" @chatname @nickname "%20has%20logged%20out."))
+        (System/exit 0)))
 
   (def f (frame :title "SMChat"
                 :id 100
