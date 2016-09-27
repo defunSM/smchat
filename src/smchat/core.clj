@@ -41,11 +41,11 @@
   (def adminstatus (atom ""))
   (defonce chatcolor (atom "yellow"))
 
-
   (defn set-interval [callback ms]
     (future (while true (do (Thread/sleep ms) (callback)))))
 
   (def job (set-interval #(do (text! display-area (clojure.string/replace (slurp (str @chatserver "chat")) #"%20" " "))) 1000))
+
 
 ;; Keypress for the chatbox which will clear the input-command and send the new message once enter is pressed.
 
