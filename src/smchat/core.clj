@@ -47,6 +47,10 @@
   (defn slurp-server []
     (clojure.string/replace (slurp (str @chatserver "chat")) #"%20" " "))
 
+  (defn String->Number [str]
+    (let [n (read-string str)]
+      (if (number? n) n nil)))
+
   (def job (set-interval #(do (text! display-area (slurp-server))) 1000))
 
 
@@ -60,7 +64,7 @@
             (text! input-command "")))))
 
   (def input-command (text :multi-line? false :text "" :listen [:key-typed keypress]))
-  (def display-area (text :multi-line? true :text "You have launched ChatBox.\n\n\n\n\n" :foreground @chatcolor :background "black"))
+  (def display-area (text :multi-line? true :text "You have launched ChatBox.\n\n\n\n\n" :foreground @chatcolor :font (font :size 16) :background "black"))
 
   (def chat-prompt (label :text "=>"))
   (def chat-prompt-main (atom "=>"))
@@ -139,10 +143,10 @@
       (if (= e "Default Settings")
         (do (reset! chatcolor "yellow")
             (config! display-area :foreground @chatcolor)
+            (config! display-area :font (font :size 16))
             (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")
             (config! chat-prompt :text "=>")
-            (reset! chat-prompt-main "=>")
-            (reset! chatname "Unknown")))
+            (reset! chat-prompt-main "=>")))
       (if (= e "Login")
         (do (reset! chatname (text username-input))
             (reset! user-password (text password-input))
@@ -187,10 +191,16 @@
       (if (= e "Log out")
         (do (-> f hide!)
             (-> login-frame show!)
-            (slurp (str @chatserver "chat?" "[Server]%20" @chatname @nickname "%20has%20logged%20out."))))))
+            (slurp (str @chatserver "chat?" "[Server]%20" @chatname @nickname "%20has%20logged%20out."))))
+      (if (= e "Change Font Size")
+        (do (config! display-area :font (font :size (String->Number (input "Enter the font size you desire: "))))))))
 
   ;; something wrong with the continue handler
   ;; Add stuff so that it takes all the information and records it in a file
+
+  (def change-font-size (menu-item :text "Change Font Size"
+                                   :tip "Changes the size of the chat font."
+                                   :listen [:action handler]))
 
   (def close-chatbox (menu-item :text "Close ChatBox"
                                 :tip "Closes the ChatBox."
@@ -249,7 +259,7 @@
   (def f (frame :title "SMChat"
                 :id 100
                 :menubar (menubar :items [(menu :text "File" :items [close-chatbox login-screen])
-                                          (menu :text "Customize" :items [change-chat-color change-prompt theme-select return-default])
+                                          (menu :text "Customize" :items [change-chat-color change-prompt theme-select change-font-size return-default])
                                           (menu :text "Chat" :items [clear-chat change-chatserver enter-chat-name gain-admin])
                                           (menu :text "Help" :items [documentation])])
 
