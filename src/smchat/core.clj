@@ -169,6 +169,9 @@
         (do (browse-url "http://servesm.herokuapp.com/register")))
       (if (= e "Back")
         (do (-> register-frame hide!)
+            (-> login-frame show!)))
+      (if (= e "Log out")
+        (do (-> f hide!)
             (-> login-frame show!)))))
 
   ;; something wrong with the continue handler
@@ -218,11 +221,15 @@
                              :tip "You should know what this does."
                              :listen [:action handler]))
 
+  (def login-screen (menu-item :text "Log out"
+                               :tip "You will return to login screen if you click here."
+                               :listen [:action handler]))
+
   ;; This is the main SMCHAT frame that is launched in the beginnning.
 
   (def f (frame :title "SMChat"
                 :id 100
-                :menubar (menubar :items [(menu :text "File" :items [close-chatbox])
+                :menubar (menubar :items [(menu :text "File" :items [close-chatbox login-screen])
                                           (menu :text "Customize" :items [change-chat-color change-prompt theme-select return-default])
                                           (menu :text "Chat" :items [clear-chat change-chatserver enter-chat-name gain-admin])
                                           (menu :text "Help" :items [documentation])])
