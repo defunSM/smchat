@@ -3,6 +3,8 @@
   (:import org.pushingpixels.substance.api.SubstanceLookAndFeel)
   (:require [clojure.string :as str]))
 
+(import java.awt.Toolkit)
+(import '(javax.swing JFrame JPanel JButton))
 ;; Make a settings frame.
 ;; Fix the way chat left over is dealt with in the sql database.
 ;; remove changing name option to adding a nickname
@@ -143,7 +145,10 @@
             (reset! user-password (text password-input))
             (-> login-frame hide!)
             (if (= "TRUE" (slurp (str @chatserver "confirmlogin?" (text username-input) "%20" (text password-input))))
-              (-> f pack! show!)
+              (do (-> f pack! show!)
+                  (config! f :size [600 :by 480])
+                  (move! f :to [(/ (.. Toolkit getDefaultToolkit getScreenSize width) 3) (/ (.. Toolkit getDefaultToolkit getScreenSize height) 3)])
+                  (request-focus! input-command))
               (do (alert "Invalid Username or Password")
                   (-> login-frame show!)))))
       (if (= e "Register")
@@ -152,12 +157,18 @@
       (if (= e "Guest")
         (do (-> login-frame hide!)
             (-> f pack! show!)
+            (config! f :size [600 :by 480])
+            (move! f :to [(/ (.. Toolkit getDefaultToolkit getScreenSize width) 3) (/ (.. Toolkit getDefaultToolkit getScreenSize height) 3)])
+            (request-focus! input-command)
             (reset! chatname (str "Guest" (str (rand-int 1000))))
             (alert (str "You have logged in as " @chatname))))
       (if (= e "Continue")
         (do (slurp (str @chatserver "new?" (text ruser-text-field) "%20" (text confirm-textbox) "%20" (text remail-text) "%20" (text rage-text) "%20" (text cphone-text)))
             (-> register-frame hide!)
             (-> f pack! show!)
+            (config! f :size [600 :by 480])
+            (move! f :to [(/ (.. Toolkit getDefaultToolkit getScreenSize width) 3) (/ (.. Toolkit getDefaultToolkit getScreenSize height) 3)])
+            (request-focus! input-command)
             (reset! chatname @text ruser-text-field)))
       (if (= e "Log into Admin Account")
         (do (if (= "smchatadmin" (input "Enter ADMIN Password: "))
@@ -300,5 +311,4 @@
   (native!)
   (invoke-later
    (-> login-frame pack! show!)
-   (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")
-   (request-focus! input-command)))
+   (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")))
