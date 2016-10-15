@@ -331,3 +331,5 @@
   (invoke-later
    (-> login-frame pack! show!)
    (SubstanceLookAndFeel/setSkin "org.pushingpixels.substance.api.skin.GraphiteAquaSkin")))
+
+(-main)
